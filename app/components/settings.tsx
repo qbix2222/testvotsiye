@@ -33,6 +33,8 @@ import {
 } from "./ui-lib";
 import { ModelConfigList } from "./model-config";
 import { CustomProviders } from "./custom-providers";
+import { WebSearchConfig } from "./websearch-config";
+import { EconomyConfig } from "./economy-config";
 
 import { IconButton } from "./button";
 import {
@@ -1926,6 +1928,14 @@ export function Settings() {
               config.update((config) => (config.modelConfig = modelConfig));
             }}
           />
+        </List>
+
+        <List>
+          <WebSearchConfig />
+        </List>
+
+        <List>
+          <EconomyConfig />
         </List>
 
         {shouldShowPromptModal && (

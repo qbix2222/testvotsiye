@@ -98,6 +98,7 @@ export enum StoreKey {
   Sync = "sync",
   SdList = "sd-list",
   Mcp = "mcp-store",
+  WebSearch = "websearch-config",
 }
 
 export const DEFAULT_SIDEBAR_WIDTH = 300;
@@ -296,6 +297,13 @@ Latex inline: \\(x^2\\)
 Latex block: $$e=mc^2$$
 `;
 
+export const COMPACT_SYSTEM_TEMPLATE = `
+You are a helpful AI assistant.
+Knowledge cutoff: {{cutoff}}
+Current model: {{model}}
+Current time: {{time}}
+`;
+
 export const MCP_TOOLS_TEMPLATE = `
 [clientId]
 {{ clientId }}
@@ -419,6 +427,24 @@ You are an AI assistant with access to system tools. Your role is to help users 
    please follow the format strictly ONLY use tools/call method!!!!!!!!!!!
    
 `;
+
+export const DEFAULT_PRICING_TABLE = [
+  "# prefix=input$/1M,output$/1M (longest matching prefix wins)",
+  "gpt-4o-mini=0.15,0.6",
+  "gpt-4o=2.5,10",
+  "gpt-4.1-mini=0.4,1.6",
+  "gpt-4.1=2,8",
+  "o1-mini=1.1,4.4",
+  "deepseek-chat=0.27,1.1",
+  "deepseek-reasoner=0.55,2.19",
+  "claude-3-5-sonnet=3,15",
+  "claude-sonnet-4=3,15",
+  "claude-opus-4=15,75",
+  "gemini-2.0-flash=0.1,0.4",
+  "gemini-2.5-pro=1.25,10",
+  "grok-3-mini=0.3,0.5",
+  "grok-3=3,15",
+].join("\n");
 
 export const SUMMARIZE_MODEL = "gpt-4o-mini";
 export const GEMINI_SUMMARIZE_MODEL = "gemini-pro";

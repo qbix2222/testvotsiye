@@ -313,6 +313,86 @@ const en: LocaleType = {
       Check: "Check",
       NoAccess: "Enter API Key to check balance",
     },
+    WebSearch: {
+      Title: "Web Search",
+      SubTitle: "Give the model live web access (free engines included)",
+      UseAsTool: {
+        Title: "Model decides when to search",
+        SubTitle:
+          "Attach web_search/fetch_page tools via function calling (OpenAI-compatible providers)",
+      },
+      Engine: {
+        Title: "Search engine",
+        SubTitle:
+          "Auto tries configured engines in order, DuckDuckGo is the keyless fallback",
+      },
+      MaxResults: {
+        Title: "Max results",
+        SubTitle: "1-10 results per search",
+      },
+      SearxngUrl: {
+        Title: "SearXNG URL",
+        SubTitle: "Any instance with JSON enabled, or your self-hosted one",
+      },
+      TavilyKey: {
+        Title: "Tavily API key",
+        SubTitle: "Free 1,000 credits/month at tavily.com",
+      },
+      ExaKey: {
+        Title: "Exa API key",
+        SubTitle: "Free 20,000 searches/month at exa.ai",
+      },
+      SerperKey: {
+        Title: "Serper API key",
+        SubTitle: "Free 2,500 trial queries at serper.dev",
+      },
+      JinaKey: {
+        Title: "Jina API key (optional)",
+        SubTitle: "Raises page-reader limits; works without a key too",
+      },
+      Test: {
+        Title: "Test search",
+        SubTitle: "Run a real query through the chain",
+        Action: "Test",
+      },
+      TestPrompt: "Search query to test:",
+      TestOk: (engine: string, n: number) => `OK via ${engine}: ${n} results`,
+      SearchFail: (msg: string) => `Search failed: ${msg}`,
+      DisabledHint: "Enable Web Search in Settings first",
+      EmptyQuery: "Type a query first",
+      InsertedToast: (engine: string, n: number) =>
+        `Inserted ${n} results (${engine}) — press send`,
+      SearchButton: "Search the web for this input and attach results",
+    },
+    Economy: {
+      Title: "Token Economy",
+      SubTitle: "System prompt, context budget and cost estimates",
+      Preset: "Apply economy preset",
+      PresetApplied:
+        "Economy preset applied (history 3, threshold 800, compact prompt)",
+      CompactSystemPrompt: {
+        Title: "Compact system prompt",
+        SubTitle: "Short system prompt (~30 tokens instead of ~120)",
+      },
+      SessionStats: {
+        Title: "Current chat",
+        SubTitle: "Estimated tokens and cost of this session",
+      },
+      Tokens: (n: number) => `~${n} tok`,
+      InputPrice: {
+        Title: "Input $ / 1M tokens",
+        SubTitle: "Global fallback price",
+      },
+      OutputPrice: {
+        Title: "Output $ / 1M tokens",
+        SubTitle: "Global fallback price",
+      },
+      PricingTable: {
+        Title: "Per-model prices",
+        SubTitle:
+          "One rule per line: prefix=input,output ($ per 1M). Longest prefix wins.",
+      },
+    },
     Access: {
       SaasStart: {
         Title: "Use NextChat AI",

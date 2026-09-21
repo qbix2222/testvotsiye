@@ -13,6 +13,7 @@ import {
   DEFAULT_TTS_VOICES,
   StoreKey,
   ServiceProvider,
+  DEFAULT_PRICING_TABLE,
 } from "../constant";
 import { createPersistStore } from "../utils/store";
 import type { Voice } from "rt-client";
@@ -63,6 +64,12 @@ export const DEFAULT_CONFIG = {
   customModels: "",
   models: DEFAULT_MODELS as any as LLMModel[],
 
+  tokenPricing: {
+    inputPer1M: 0,
+    outputPer1M: 0,
+  },
+  modelPricing: DEFAULT_PRICING_TABLE,
+
   modelConfig: {
     model: "gpt-4o-mini" as ModelType,
     providerName: "OpenAI" as ServiceProvider,
@@ -77,6 +84,7 @@ export const DEFAULT_CONFIG = {
     compressModel: "",
     compressProviderName: "",
     enableInjectSystemPrompts: true,
+    compactSystemPrompt: false,
     template: config?.template ?? DEFAULT_INPUT_TEMPLATE,
     size: "1024x1024" as ModelSize,
     quality: "standard" as DalleQuality,
@@ -222,7 +230,7 @@ export const useAppConfig = createPersistStore(
   }),
   {
     name: StoreKey.Config,
-    version: 4.1,
+    version: 4.2,
 
     merge(persistedState, currentState) {
       const state = persistedState as ChatConfig | undefined;
@@ -280,6 +288,18 @@ export const useAppConfig = createPersistStore(
           DEFAULT_CONFIG.modelConfig.compressModel;
         state.modelConfig.compressProviderName =
           DEFAULT_CONFIG.modelConfig.compressProviderName;
+      }
+
+      if (version < 4.2) {
+        if (state.modelConfig.compactSystemPrompt === undefined) {
+          state.modelConfig.compactSystemPrompt = false;
+        }
+        if (!state.tokenPricing) {
+          state.tokenPricing = { inputPer1M: 0, outputPer1M: 0 };
+        }
+        if (typeof state.modelPricing !== "string") {
+          state.modelPricing = DEFAULT_PRICING_TABLE;
+        }
       }
 
       return state as any;

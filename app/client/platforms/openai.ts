@@ -49,6 +49,11 @@ import {
   getCustomProvider,
   normalizeBaseUrl,
 } from "@/app/utils/custom-provider";
+import { useWebSearchStore } from "@/app/store/websearch";
+import {
+  buildWebSearchTools,
+  modelSupportsTools,
+} from "@/app/utils/websearch";
 
 export interface OpenAIListModelResponse {
   object: string;
@@ -323,11 +328,26 @@ export class ChatGPTApi implements LLMApi {
       }
       if (shouldStream) {
         let index = -1;
-        const [tools, funcs] = usePluginStore
+        let [tools, funcs] = usePluginStore
           .getState()
           .getAsTools(
             useChatStore.getState().currentSession().mask?.plugin || [],
-          );
+          ) as [any[], Record<string, Function>];
+        // Built-in web search: let the model call web_search/fetch_page itself.
+        try {
+          const ws = useWebSearchStore.getState();
+          if (
+            ws.enabled &&
+            ws.useAsTool &&
+            modelSupportsTools(options.config.model)
+          ) {
+            const [webTools, webFuncs] = buildWebSearchTools();
+            tools = [...(tools || []), ...webTools];
+            funcs = { ...(funcs || {}), ...webFuncs };
+          }
+        } catch (e) {
+          console.error("[WebSearch] failed to attach tools", e);
+        }
         // console.log("getAsTools", tools, funcs);
         streamWithThink(
           chatPath,

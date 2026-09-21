@@ -310,6 +310,84 @@ const cn = {
       NoAccess: "输入 API Key 或访问密码查看余额",
     },
 
+    WebSearch: {
+      Title: "联网搜索",
+      SubTitle: "让模型访问实时互联网（含免费引擎）",
+      UseAsTool: {
+        Title: "模型自行决定何时搜索",
+        SubTitle:
+          "通过 function calling 挂载 web_search/fetch_page 工具（OpenAI 兼容渠道）",
+      },
+      Engine: {
+        Title: "搜索引擎",
+        SubTitle: "自动按顺序尝试已配置的引擎，DuckDuckGo 为免密钥兜底",
+      },
+      MaxResults: {
+        Title: "最大结果数",
+        SubTitle: "每次搜索 1-10 条结果",
+      },
+      SearxngUrl: {
+        Title: "SearXNG 地址",
+        SubTitle: "任意开启 JSON 的实例，或自建实例",
+      },
+      TavilyKey: {
+        Title: "Tavily API 密钥",
+        SubTitle: "tavily.com 每月免费 1000 点数",
+      },
+      ExaKey: {
+        Title: "Exa API 密钥",
+        SubTitle: "exa.ai 每月免费 20000 次搜索",
+      },
+      SerperKey: {
+        Title: "Serper API 密钥",
+        SubTitle: "serper.dev 免费 2500 次试用",
+      },
+      JinaKey: {
+        Title: "Jina API 密钥（可选）",
+        SubTitle: "提高页面读取限额；无密钥也可使用",
+      },
+      Test: {
+        Title: "测试搜索",
+        SubTitle: "沿链路执行一次真实查询",
+        Action: "测试",
+      },
+      TestPrompt: "测试搜索词：",
+      TestOk: (engine: string, n: number) => `经 ${engine} 成功：${n} 条`,
+      SearchFail: (msg: string) => `搜索失败：${msg}`,
+      DisabledHint: "请先在设置中开启联网搜索",
+      EmptyQuery: "请先输入查询内容",
+      InsertedToast: (engine: string, n: number) =>
+        `已插入 ${n} 条结果（${engine}），请发送`,
+      SearchButton: "根据输入内容联网搜索并附加结果",
+    },
+    Economy: {
+      Title: "Token 节省",
+      SubTitle: "系统提示词、上下文预算与费用估算",
+      Preset: "应用省流预设",
+      PresetApplied: "已应用省流预设（历史 3 条、阈值 800、精简提示词）",
+      CompactSystemPrompt: {
+        Title: "精简系统提示词",
+        SubTitle: "短系统提示词（约 30 token，而非约 120）",
+      },
+      SessionStats: {
+        Title: "当前会话",
+        SubTitle: "本会话的 Token 与费用估算",
+      },
+      Tokens: (n: number) => `约${n} token`,
+      InputPrice: {
+        Title: "输入 $ / 1M token",
+        SubTitle: "全局兜底价格",
+      },
+      OutputPrice: {
+        Title: "输出 $ / 1M token",
+        SubTitle: "全局兜底价格",
+      },
+      PricingTable: {
+        Title: "分模型价格",
+        SubTitle:
+          "每行一条规则：prefix=input,output（每 1M token 的美元价），最长前缀优先。",
+      },
+    },
     Access: {
       SaasStart: {
         Title: "使用 NextChat AI",

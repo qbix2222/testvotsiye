@@ -19,6 +19,7 @@ import {
   DEFAULT_INPUT_TEMPLATE,
   DEFAULT_MODELS,
   DEFAULT_SYSTEM_TEMPLATE,
+  COMPACT_SYSTEM_TEMPLATE,
   GEMINI_SUMMARIZE_MODEL,
   DEEPSEEK_SUMMARIZE_MODEL,
   KnowledgeCutOffDate,
@@ -79,6 +80,8 @@ export interface ChatStat {
   tokenCount: number;
   wordCount: number;
   charCount: number;
+  promptTokens: number;
+  completionTokens: number;
 }
 
 export interface ChatSession {
@@ -111,6 +114,8 @@ function createEmptySession(): ChatSession {
       tokenCount: 0,
       wordCount: 0,
       charCount: 0,
+      promptTokens: 0,
+      completionTokens: 0,
     },
     lastUpdate: Date.now(),
     lastSummarizeIndex: 0,
@@ -463,6 +468,7 @@ export const useChatStore = createPersistStore(
             botMessage,
           ]);
         });
+        get().updateStat(userMessage, session);
 
         const api: ClientApi = getClientApi(modelConfig.providerName);
         // make request
@@ -575,7 +581,9 @@ export const useChatStore = createPersistStore(
               content:
                 fillTemplateWith("", {
                   ...modelConfig,
-                  template: DEFAULT_SYSTEM_TEMPLATE,
+                  template: modelConfig.compactSystemPrompt
+                    ? COMPACT_SYSTEM_TEMPLATE
+                    : DEFAULT_SYSTEM_TEMPLATE,
                 }) + mcpSystemPrompt,
             }),
           ];
@@ -805,9 +813,19 @@ export const useChatStore = createPersistStore(
       },
 
       updateStat(message: ChatMessage, session: ChatSession) {
+        const text = getMessageTextContent(message);
+        const tokens = estimateTokenLength(text);
+        const words = text.split(/\s+/).filter(Boolean).length;
         get().updateTargetSession(session, (session) => {
           session.stat.charCount += message.content.length;
-          // TODO: should update chat count and word count
+          session.stat.tokenCount += tokens;
+          session.stat.wordCount += words;
+          if (message.role === "assistant") {
+            session.stat.completionTokens =
+              (session.stat.completionTokens ?? 0) + tokens;
+          } else {
+            session.stat.promptTokens = (session.stat.promptTokens ?? 0) + tokens;
+          }
         });
       },
       updateTargetSession(
@@ -868,7 +886,7 @@ export const useChatStore = createPersistStore(
   },
   {
     name: StoreKey.Chat,
-    version: 3.3,
+    version: 3.4,
     migrate(persistedState, version) {
       const state = persistedState as any;
       const newState = JSON.parse(
@@ -930,6 +948,17 @@ export const useChatStore = createPersistStore(
           const config = useAppConfig.getState();
           s.mask.modelConfig.compressModel = "";
           s.mask.modelConfig.compressProviderName = "";
+        });
+      }
+
+      // token economy stats
+      if (version < 3.4) {
+        newState.sessions.forEach((s) => {
+          s.stat.promptTokens = s.stat.promptTokens ?? s.stat.tokenCount ?? 0;
+          s.stat.completionTokens = s.stat.completionTokens ?? 0;
+          if (s.mask.modelConfig.compactSystemPrompt === undefined) {
+            s.mask.modelConfig.compactSystemPrompt = false;
+          }
         });
       }
 

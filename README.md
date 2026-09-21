@@ -1,3 +1,21 @@
+# testvotsiye — NextChat-форк: свои провайдеры + веб-поиск + экономия
+
+Форк [NextChat](https://github.com/ChatGPTNextWeb/NextChat) (лицензия MIT) с добавленными фичами:
+
+- 🧩 **Свои провайдеры** — любой OpenAI-совместимый API прямо в настройках (название + base URL + ключ), кнопка **«Загрузить модели»** (`GET /v1/models` по докам OpenAI), запросы через серверный прокси (без CORS) или напрямую
+- 🔍 **Веб-поиск у модели** — автоцепочка движков **Tavily → Exa → Serper → SearXNG → DuckDuckGo** (все с бесплатными тарифами) + чтение страниц через **Jina Reader**; модель **сама решает, когда искать** (function calling), плюс кнопка 🔍 в чате
+- 🪙 **Экономия токенов** — компактный системный промпт, счётчик токенов и цены в шапке чата, таблица цен по моделям, эконом-пресет, настройка сжатия истории
+
+Деплой за 2 минуты (бесплатно + свой домен): см. **[DEPLOY.md](./DEPLOY.md)**.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fqbix2222%2Ftestvotsiye&project-name=testvotsiye&repository-name=testvotsiye)
+
+> Кнопка деплоит ветку по умолчанию (`main`). Сначала влейте изменения из `arena/01a0c360-testvotsiye` в `main` (есть PR), либо в Vercel выберите нужную ветку вручную.
+
+---
+Оригинальный README NextChat ниже ⬇️
+---
+
 <div align="center">
 
 <a href='https://nextchat.club'>

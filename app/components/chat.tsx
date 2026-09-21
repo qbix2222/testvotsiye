@@ -125,6 +125,9 @@ import { getModelProvider } from "../utils/model";
 import { RealtimeChat } from "@/app/components/realtime-chat";
 import clsx from "clsx";
 import { getAvailableClientsCount, isMcpEnabled } from "../mcp/actions";
+import { useWebSearchStore } from "../store/websearch";
+import { formatResultsForChat, runWebSearch } from "../utils/websearch";
+import { estimateCost } from "../utils/pricing";
 
 const localStorage = safeLocalStorage();
 
@@ -502,6 +505,7 @@ export function ChatActions(props: {
   uploading: boolean;
   setShowShortcutKeyModal: React.Dispatch<React.SetStateAction<boolean>>;
   setUserInput: (input: string) => void;
+  userInput: string;
   setShowChatSidePanel: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const config = useAppConfig();
@@ -596,6 +600,32 @@ export function ChatActions(props: {
     }
   }, [chatStore, currentModel, models, session]);
 
+  const [searching, setSearching] = useState(false);
+
+  async function onWebSearch() {
+    const L = Locale.Settings.WebSearch;
+    const ws = useWebSearchStore.getState();
+    if (!ws.enabled) {
+      showToast(L.DisabledHint);
+      return;
+    }
+    const q = (props.userInput || "").trim();
+    if (!q) {
+      showToast(L.EmptyQuery);
+      return;
+    }
+    setSearching(true);
+    try {
+      const { results, engine } = await runWebSearch(q);
+      props.setUserInput(q + "\n\n" + formatResultsForChat(q, results, engine));
+      showToast(L.InsertedToast(engine, results.length));
+    } catch (e: any) {
+      showToast(L.SearchFail(e?.message || String(e)));
+    } finally {
+      setSearching(false);
+    }
+  }
+
   return (
     <div className={styles["chat-input-actions"]}>
       <>
@@ -671,6 +701,12 @@ export function ChatActions(props: {
               }
             });
           }}
+        />
+
+        <ChatAction
+          onClick={onWebSearch}
+          text={searching ? "..." : "🔍"}
+          icon={<span style={{ fontSize: 15 }}>🔍</span>}
         />
 
         <ChatAction
@@ -1710,6 +1746,29 @@ function _Chat() {
             </div>
             <div className="window-header-sub-title">
               {Locale.Chat.SubTitle(session.messages.length)}
+              {(() => {
+                const prompt = session.stat?.promptTokens ?? 0;
+                const completion = session.stat?.completionTokens ?? 0;
+                const total = Math.round(
+                  prompt + completion || session.stat?.tokenCount || 0,
+                );
+                const cost = estimateCost(
+                  session.mask.modelConfig.model,
+                  prompt,
+                  completion,
+                );
+                return (
+                  <span
+                    style={{ marginLeft: 8, opacity: 0.8 }}
+                    title={`~${Math.round(prompt)} in / ~${Math.round(
+                      completion,
+                    )} out tokens`}
+                  >
+                    • {Locale.Settings.Economy.Tokens(total)} • $
+                    {cost < 0.01 ? cost.toFixed(4) : cost.toFixed(2)}
+                  </span>
+                );
+              })()}
             </div>
           </div>
           <div className="window-actions">
@@ -2047,6 +2106,7 @@ function _Chat() {
 
               <ChatActions
                 uploadImage={uploadImage}
+                userInput={userInput}
                 setAttachImages={setAttachImages}
                 setUploading={setUploading}
                 showPromptModal={() => setShowPromptModal(true)}

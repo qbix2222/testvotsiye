@@ -295,6 +295,86 @@ const ru: PartialLocaleType = {
       NoAccess: "Введите API-ключ или пароль доступа для просмотра баланса",
     },
 
+    WebSearch: {
+      Title: "Веб-поиск",
+      SubTitle: "Доступ модели к живому интернету (есть бесплатные движки)",
+      UseAsTool: {
+        Title: "Модель сама решает, когда искать",
+        SubTitle:
+          "Тулзы web_search/fetch_page через function calling (OpenAI-совместимые провайдеры)",
+      },
+      Engine: {
+        Title: "Поисковик",
+        SubTitle:
+          "Авто перебирает настроенные движки, DuckDuckGo — запасной без ключа",
+      },
+      MaxResults: {
+        Title: "Максимум результатов",
+        SubTitle: "1-10 результатов на запрос",
+      },
+      SearxngUrl: {
+        Title: "SearXNG URL",
+        SubTitle: "Любой инстанс с включённым JSON или свой собственный",
+      },
+      TavilyKey: {
+        Title: "Tavily API-ключ",
+        SubTitle: "Бесплатно 1000 кредитов/мес на tavily.com",
+      },
+      ExaKey: {
+        Title: "Exa API-ключ",
+        SubTitle: "Бесплатно 20 000 поисков/мес на exa.ai",
+      },
+      SerperKey: {
+        Title: "Serper API-ключ",
+        SubTitle: "Бесплатно 2500 пробных запросов на serper.dev",
+      },
+      JinaKey: {
+        Title: "Jina API-ключ (необязательно)",
+        SubTitle: "Повышает лимиты чтения страниц; работает и без ключа",
+      },
+      Test: {
+        Title: "Проверка поиска",
+        SubTitle: "Выполнить реальный запрос по цепочке",
+        Action: "Проверить",
+      },
+      TestPrompt: "Тестовый поисковый запрос:",
+      TestOk: (engine: string, n: number) => `ОК через ${engine}: ${n} шт.`,
+      SearchFail: (msg: string) => `Поиск не удался: ${msg}`,
+      DisabledHint: "Сначала включите веб-поиск в настройках",
+      EmptyQuery: "Сначала введите запрос",
+      InsertedToast: (engine: string, n: number) =>
+        `Вставлено результатов: ${n} (${engine}) — нажмите отправку`,
+      SearchButton: "Найти в интернете по этому тексту и приложить результаты",
+    },
+    Economy: {
+      Title: "Экономия токенов",
+      SubTitle: "Системный промпт, бюджет контекста и оценка цены",
+      Preset: "Применить эконом-пресет",
+      PresetApplied:
+        "Эконом-пресет применён (история 3, порог 800, короткий промпт)",
+      CompactSystemPrompt: {
+        Title: "Компактный системный промпт",
+        SubTitle: "Короткий системный промпт (~30 токенов вместо ~120)",
+      },
+      SessionStats: {
+        Title: "Текущий чат",
+        SubTitle: "Оценка токенов и цены этой сессии",
+      },
+      Tokens: (n: number) => `~${n} ток`,
+      InputPrice: {
+        Title: "Ввод $ / 1M токенов",
+        SubTitle: "Глобальная резервная цена",
+      },
+      OutputPrice: {
+        Title: "Вывод $ / 1M токенов",
+        SubTitle: "Глобальная резервная цена",
+      },
+      PricingTable: {
+        Title: "Цены по моделям",
+        SubTitle:
+          "По правилу на строку: prefix=input,output ($ за 1M). Побеждает длиннейший префикс.",
+      },
+    },
     Access: {
       SaasStart: {
         Title: "Используйте NextChat AI",
