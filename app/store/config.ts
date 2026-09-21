@@ -192,6 +192,33 @@ export const useAppConfig = createPersistStore(
     },
 
     allModels() {},
+
+    upsertModels(newModels: LLMModel[], available: boolean = true) {
+      if (!newModels || newModels.length === 0) {
+        return;
+      }
+
+      const oldModels = get().models.slice();
+      const indexByKey = new Map<string, number>();
+      oldModels.forEach((m, i) =>
+        indexByKey.set(`${m.name}@${m?.provider?.id}`, i),
+      );
+
+      for (const model of newModels) {
+        const key = `${model.name}@${model?.provider?.id}`;
+        const idx = indexByKey.get(key);
+        if (idx === undefined) {
+          indexByKey.set(key, oldModels.length);
+          oldModels.push({ ...model, available });
+        } else {
+          oldModels[idx] = { ...oldModels[idx], ...model, available };
+        }
+      }
+
+      set(() => ({
+        models: oldModels,
+      }));
+    },
   }),
   {
     name: StoreKey.Config,

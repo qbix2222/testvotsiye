@@ -161,8 +161,16 @@ function countMessages(msgs: ChatMessage[]) {
 function fillTemplateWith(input: string, modelConfig: ModelConfig) {
   const cutoff =
     KnowledgeCutOffDate[modelConfig.model] ?? KnowledgeCutOffDate.default;
-  // Find the model in the DEFAULT_MODELS array that matches the modelConfig.model
-  const modelInfo = DEFAULT_MODELS.find((m) => m.name === modelConfig.model);
+  // Find the model in the user model list (includes custom providers) that matches
+  const sessionProvider = modelConfig.providerName as unknown as string;
+  const modelInfo =
+    useAppConfig
+      .getState()
+      .models.find(
+        (m) =>
+          m.name === modelConfig.model &&
+          m.provider?.providerName === sessionProvider,
+      ) ?? DEFAULT_MODELS.find((m) => m.name === modelConfig.model);
 
   var serviceProvider = "OpenAI";
   if (modelInfo) {

@@ -44,6 +44,11 @@ import {
   getTimeoutMSByModel,
 } from "@/app/utils";
 import { fetch } from "@/app/utils/stream";
+import {
+  canUseServerProxy,
+  getCustomProvider,
+  normalizeBaseUrl,
+} from "@/app/utils/custom-provider";
 
 export interface OpenAIListModelResponse {
   object: string;
@@ -84,6 +89,19 @@ export class ChatGPTApi implements LLMApi {
 
   path(path: string): string {
     const accessStore = useAccessStore.getState();
+
+    // Custom providers (user-defined, OpenAI-compatible): resolve by session provider name.
+    // Unknown provider names already fall through to this ChatGPTApi class via getClientApi().
+    const customProvider = getCustomProvider(
+      useChatStore.getState().currentSession()?.mask?.modelConfig
+        ?.providerName as unknown as string,
+    );
+    if (customProvider && normalizeBaseUrl(customProvider.baseUrl)) {
+      if (customProvider.useProxy && canUseServerProxy()) {
+        return `/api/proxy/${path}`;
+      }
+      return [normalizeBaseUrl(customProvider.baseUrl), path].join("/");
+    }
 
     let baseUrl = "";
 

@@ -19,6 +19,7 @@ import {
   SILICONFLOW_BASE_URL,
   AI302_BASE_URL,
 } from "../constant";
+import { nanoid } from "nanoid";
 import { getHeaders } from "../client/api";
 import { getClientConfig } from "../config/client";
 import { createPersistStore } from "../utils/store";
@@ -61,6 +62,17 @@ const DEFAULT_SILICONFLOW_URL = isApp
   : ApiPath.SiliconFlow;
 
 const DEFAULT_AI302_URL = isApp ? AI302_BASE_URL : ApiPath["302.AI"];
+
+/** User-defined OpenAI-compatible provider (any base URL + API key). */
+export type CustomProvider = {
+  id: string;
+  name: string;
+  baseUrl: string;
+  apiKey: string;
+  enabled: boolean;
+  /** Route requests via the server proxy (/api/proxy) to avoid CORS. */
+  useProxy: boolean;
+};
 
 const DEFAULT_ACCESS_STATE = {
   accessCode: "",
@@ -138,6 +150,9 @@ const DEFAULT_ACCESS_STATE = {
   // 302.AI
   ai302Url: DEFAULT_AI302_URL,
   ai302ApiKey: "",
+
+  // custom openai-compatible providers (user-defined at runtime)
+  customProviders: [] as CustomProvider[],
 
   // server config
   needCode: true,
@@ -226,6 +241,62 @@ export const useAccessStore = createPersistStore(
       return ensure(get(), ["siliconflowApiKey"]);
     },
 
+    isValidCustom() {
+      return (get().customProviders || []).some(
+        (p) => p.enabled !== false && !!p.apiKey,
+      );
+    },
+
+    getCustomProvider(name: string) {
+      return (get().customProviders || []).find((p) => p.name === name);
+    },
+
+    addCustomProvider(input: {
+      name: string;
+      baseUrl: string;
+      apiKey: string;
+      useProxy?: boolean;
+    }) {
+      const name = (input.name || "").trim();
+      if (!name) return null;
+      const providers = [...(get().customProviders || [])];
+      if (providers.some((p) => p.name === name)) return null;
+      const item: CustomProvider = {
+        id: nanoid(),
+        name,
+        baseUrl: (input.baseUrl || "").trim(),
+        apiKey: input.apiKey || "",
+        enabled: true,
+        useProxy: input.useProxy ?? true,
+      };
+      providers.push(item);
+      set(() => ({ customProviders: providers }));
+      return item;
+    },
+
+    updateCustomProvider(id: string, patch: Partial<CustomProvider>) {
+      const providers = [...(get().customProviders || [])];
+      const i = providers.findIndex((p) => p.id === id);
+      if (i < 0) return;
+      const nextName = (patch.name ?? providers[i].name).trim();
+      if (
+        providers.some((p) => p.id !== id && p.name === nextName) ||
+        !nextName
+      ) {
+        return;
+      }
+      providers[i] = { ...providers[i], ...patch, id, name: nextName };
+      set(() => ({ customProviders: providers }));
+    },
+
+    removeCustomProvider(id: string) {
+      set(() => ({
+        customProviders: (get().customProviders || []).filter(
+          (p) => p.id !== id,
+        ),
+      }));
+    },
+
     isAuthorized() {
       this.fetch();
 
@@ -245,6 +316,7 @@ export const useAccessStore = createPersistStore(
         this.isValidXAI() ||
         this.isValidChatGLM() ||
         this.isValidSiliconFlow() ||
+        this.isValidCustom() ||
         !this.enabledAccessControl() ||
         (this.enabledAccessControl() && ensure(get(), ["accessCode"]))
       );
@@ -284,7 +356,7 @@ export const useAccessStore = createPersistStore(
   }),
   {
     name: StoreKey.Access,
-    version: 2,
+    version: 2.1,
     migrate(persistedState, version) {
       if (version < 2) {
         const state = persistedState as {
@@ -295,6 +367,13 @@ export const useAccessStore = createPersistStore(
         };
         state.openaiApiKey = state.token;
         state.azureApiVersion = "2023-08-01-preview";
+      }
+
+      if (version < 2.1) {
+        const state = persistedState as any;
+        if (!Array.isArray(state.customProviders)) {
+          state.customProviders = [];
+        }
       }
 
       return persistedState as any;

@@ -32,6 +32,7 @@ import {
   showToast,
 } from "./ui-lib";
 import { ModelConfigList } from "./model-config";
+import { CustomProviders } from "./custom-providers";
 
 import { IconButton } from "./button";
 import {
@@ -1866,6 +1867,7 @@ export function Settings() {
                   {ai302ConfigComponent}
                 </>
               )}
+              <CustomProviders />
             </>
           )}
 

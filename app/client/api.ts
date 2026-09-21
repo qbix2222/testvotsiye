@@ -12,6 +12,11 @@ import {
   useChatStore,
 } from "../store";
 import { ChatGPTApi, DalleRequestPayload } from "./platforms/openai";
+import {
+  canUseServerProxy,
+  getCustomProvider,
+  normalizeBaseUrl,
+} from "../utils/custom-provider";
 import { GeminiProApi } from "./platforms/google";
 import { ClaudeApi } from "./platforms/anthropic";
 import { ErnieApi } from "./platforms/baidu";
@@ -344,13 +349,22 @@ export function getHeaders(ignoreHeaders: boolean = false) {
     apiKey,
     isEnabledAccessControl,
   } = getConfig();
+
+  // Custom providers (user-defined, OpenAI-compatible): match by session provider name.
+  // Falls through to built-in keys when the current provider is not custom.
+  const customProvider = getCustomProvider(
+    useChatStore.getState().currentSession()?.mask?.modelConfig
+      ?.providerName as string,
+  );
+  const effectiveApiKey = customProvider?.apiKey || apiKey;
+
   // when using baidu api in app, not set auth header
   if (isBaidu && clientConfig?.isApp) return headers;
 
   const authHeader = getAuthHeader();
 
   const bearerToken = getBearerToken(
-    apiKey,
+    effectiveApiKey,
     isAzure || isAnthropic || isGoogle,
   );
 
@@ -360,6 +374,11 @@ export function getHeaders(ignoreHeaders: boolean = false) {
     headers["Authorization"] = getBearerToken(
       ACCESS_CODE_PREFIX + accessStore.accessCode,
     );
+  }
+
+  // Tell the server proxy (/api/proxy) which upstream to forward to.
+  if (customProvider && customProvider.useProxy && canUseServerProxy()) {
+    headers["X-Base-URL"] = normalizeBaseUrl(customProvider.baseUrl);
   }
 
   return headers;
